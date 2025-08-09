@@ -1,0 +1,39 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# Environment
+.env
+.env.local
+
+# Audit / logs
+.mcp-audit.log
+logs/
+*.log
+
+# Build / output
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Cursor MCP local config
+.cursor/mcp.json
+
+# Test artifacts
+tests/tmp/
+dry_run_output.json
+
+
