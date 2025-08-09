@@ -1,0 +1,16 @@
+{
+  "name": "mcp-spec-generator",
+  "version": "0.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node tests/run_tests.js",
+    "lint": "eslint . || true",
+    "format": "prettier --write . || true"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.59.0"
+  }
+}
