@@ -5,12 +5,18 @@
   "scripts": {
     "test": "node tests/run_tests.js",
     "lint": "eslint . || true",
-    "format": "prettier --write . || true"
+    "format": "prettier --write . || true",
+    "cli": "node src/cli.js",
+    "mcp": "node src/mcp.mjs"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.59.0"
+    "@anthropic-ai/sdk": "^0.59.0",
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "openai": "^4.52.0",
+    "ajv": "^8.17.1",
+    "dotenv": "^16.1.4"
   }
 }

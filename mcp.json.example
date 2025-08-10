@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "spec-generator": {
+      "command": "node",
+      "args": ["/home/huxley/Projects/ProjectSetup/src/mcp.mjs"],
+      "env": {
+        "ENV_FILE": "/absolute/path/to/your/project/.env",
+        "PROJECT_ROOT": "/absolute/path/to/your/project"
+      }
+    }
+  }
+}

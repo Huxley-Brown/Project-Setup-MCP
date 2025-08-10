@@ -31,7 +31,7 @@ function sanitizeAndResolve(filePath) {
   if (normalized.includes('..')) throw new Error('Parent directory (..) segments are not allowed');
   if (normalized.startsWith('./')) normalized = normalized.slice(2);
 
-  const projectRoot = path.resolve(process.cwd());
+  const projectRoot = path.resolve(process.env.PROJECT_ROOT || process.env.WRITE_ROOT || process.cwd());
   const resolved = path.resolve(projectRoot, normalized);
   if (!(resolved === projectRoot || resolved.startsWith(projectRoot + path.sep))) {
     throw new Error('Resolved path is outside the project root');

@@ -20,6 +20,9 @@ dist/
 build/
 coverage/
 .nyc_output/
+.runs/
+docs/
+specs/
 
 # Editor / OS
 .DS_Store

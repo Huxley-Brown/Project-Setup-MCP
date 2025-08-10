@@ -9,7 +9,7 @@ try {
   AnthropicSDK = null;
 }
 
-async function callAnthropic({ systemPrompt, userPrompt, model = 'claude-4-sonnet-20240620', temperature = 0.0, timeoutMs, maxRetries, baseDelayMs = 500 } = {}) {
+async function callAnthropic({ systemPrompt, userPrompt, model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620', temperature = 0.0, timeoutMs, maxRetries, baseDelayMs = 500 } = {}) {
   // allow overrides via env vars
   timeoutMs = timeoutMs || Number(process.env.ANTHROPIC_TIMEOUT_MS) || 15000;
   maxRetries = typeof maxRetries === 'number' ? maxRetries : (Number(process.env.ANTHROPIC_MAX_RETRIES) || 3);
@@ -23,17 +23,23 @@ async function callAnthropic({ systemPrompt, userPrompt, model = 'claude-4-sonne
     const client = new AnthropicSDK({ apiKey });
     // Build messages per SDK expectations
     const messages = [
-      { role: 'system', content: [{ type: 'text', text: systemPrompt }] },
       { role: 'user', content: [{ type: 'text', text: userPrompt }] }
     ];
-    try {
-      const resp = await client.messages.create({ model, temperature, messages });
+     try {
+      const resp = await client.messages.create({ model, temperature, system: systemPrompt, messages, max_tokens: Number(process.env.ANTHROPIC_MAX_TOKENS || 20000) });
       // resp may have different shapes; extract text conservatively
       if (!resp) return '';
+      if (Array.isArray(resp.content)) {
+        return resp.content
+          .filter((c) => c && c.type === 'text' && typeof c.text === 'string')
+          .map((c) => c.text)
+          .join('\n');
+      }
       if (resp.content) return typeof resp.content === 'string' ? resp.content : JSON.stringify(resp.content);
       if (resp.output && resp.output.text) return resp.output.text;
       if (resp.completion) return resp.completion;
-      return JSON.stringify(resp);
+       // Preserve exact raw for debugging
+       return JSON.stringify(resp);
     } catch (e) {
       // fall through to fetch-based path for retries/error handling
       // but if it's an auth error, rethrow
@@ -43,12 +49,14 @@ async function callAnthropic({ systemPrompt, userPrompt, model = 'claude-4-sonne
 
   if (typeof fetch !== 'function') throw new Error('global fetch is not available in this environment');
 
-  const url = 'https://api.anthropic.com/v1/complete';
+  const url = 'https://api.anthropic.com/v1/messages';
   const payload = {
     model,
     temperature,
+    // Anthropic messages API expects max_tokens and a `system` field
+    max_tokens: Number(process.env.ANTHROPIC_MAX_TOKENS || 20000),
+    system: systemPrompt,
     messages: [
-      { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
     ]
   };
@@ -62,8 +70,10 @@ async function callAnthropic({ systemPrompt, userPrompt, model = 'claude-4-sonne
       const res = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'content-type': 'application/json',
+          // Anthropic requires x-api-key and an api version header
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify(payload),
         signal: controller.signal
@@ -81,11 +91,21 @@ async function callAnthropic({ systemPrompt, userPrompt, model = 'claude-4-sonne
       }
 
       const json = await safeJson(res);
-      // robust extraction: check multiple possible shapes
-      const text = json.completion || (json.output && json.output.text) ||
-        (Array.isArray(json.completions) && json.completions[0] && (json.completions[0].text || json.completions[0].completion)) ||
-        (json.choices && json.choices[0] && (json.choices[0].text || json.choices[0].message && json.choices[0].message.content)) ||
-        (typeof json === 'string' ? json : null);
+      // robust extraction: handle messages API shape first
+      let text = null;
+      if (Array.isArray(json.content)) {
+        text = json.content
+          .filter((c) => c && c.type === 'text' && typeof c.text === 'string')
+          .map((c) => c.text)
+          .join('\n');
+      }
+      // other legacy/fallback shapes
+      if (!text) {
+        text = json.completion || (json.output && json.output.text) ||
+          (Array.isArray(json.completions) && json.completions[0] && (json.completions[0].text || json.completions[0].completion)) ||
+          (json.choices && json.choices[0] && (json.choices[0].text || (json.choices[0].message && json.choices[0].message.content))) ||
+          (typeof json === 'string' ? json : null);
+      }
       return text !== null ? text : JSON.stringify(json);
     } catch (err) {
       clearTimeout(timeout);

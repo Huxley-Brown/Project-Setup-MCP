@@ -1,12 +1,13 @@
 {
   "mcpServers": {
-    "filesystem": {
-      "command": "npx",
+    "spec-generator": {
+      "command": "node",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/home/huxley/Projects/ProjectSetup"
-      ]
+        "src/mcp.mjs"
+      ],
+      "env": {
+        "ANTHROPIC_MODEL": "claude-sonnet-4-20250514"
+      }
     }
   }
 }

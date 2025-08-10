@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// load environment early
+require('dotenv').config();
 const { handlePrompt } = require('./src/handler');
 const { logAudit } = require('./src/audit');
 const { SYSTEM_PROMPT_VERSION } = require('./src/constants');

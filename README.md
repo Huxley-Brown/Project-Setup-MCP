@@ -1,41 +1,51 @@
 # MCP Spec Generator (docs)
 
-Minimal notes for running and developing the MCP spec-generator tool described in this repo.
+Minimal notes for running and developing the MCP spec‑generator tool.
 
-Requirements
+### Requirements
 - Node.js LTS (>=18)
-- Environment variable: `ANTHROPIC_API_KEY` (store securely)
+- Provider API key (defaults to OpenAI):
+  - `OPENAI_API_KEY` when using OpenAI (default)
+  - Or `ANTHROPIC_API_KEY` when using Anthropic
 
-Quick notes
-- The server communicates with Anthropic's `claude-4-sonnet-20240620` model. Keep temperature at `0.0` for deterministic output.
-- Do not run with write permissions in production: MCP tools should return `create_file`/`edit_file` calls for user approval in Cursor.
-- Example `.cursor/mcp.json` is provided in the repo as a template. When configuring, whitelist only the project folder.
+### Quick notes
+- Default LLM provider: OpenAI `gpt-5-2025-08-07`. Switch via `LLM_PROVIDER=anthropic` and set `ANTHROPIC_MODEL`.
+- For safety, writes are disabled unless enabled. Use either `ALLOW_WRITE=1` in env or pass `allowWrite: true` per call.
+- Example `.cursor/mcp.json` is included; prefer whitelisting only the project folder.
 
-Testing
-- There are fixtures in `tests/fixtures/` to validate the expected Markdown outputs from the model.
+### Testing
+- There are fixtures in `tests/fixtures/` to validate expected outputs.
+- Run tests: `npm test`.
 
-How to run
-- Run tests: `node tests/run_tests.js` or `npm test`.
-- Dry-run (propose files): `node index.js "My project idea..."`
-- Persist files: `node index.js "My project idea..." --allow-write`
-- Read prompt from stdin: `echo "My idea" | node index.js`
+### CLI (optional local run)
+- Dry‑run: `npm run cli -- "My project idea..."`
+- Persist files: `ALLOW_WRITE=1 npm run cli -- "My project idea..."`
 
-Linting & formatting
-- ESLint and Prettier configs are included. To lint/format locally run:
-  - `npm run lint`
-  - `npm run format`
+### Environment & setup
+- Copy `env.example` to `.env` and set at least:
+  - `OPENAI_API_KEY=sk-...` (or set `LLM_PROVIDER=anthropic` and `ANTHROPIC_API_KEY`)
+  - Optional: `PROJECT_ROOT=/absolute/path/for/writes`
+  - Optional: `ALLOW_WRITE=1` to enable automatic writes
+- You can force the server to read a specific env file with `ENV_FILE=/abs/path/.env` in `.cursor/mcp.json`.
 
-Environment & setup (required)
-- Set your Anthropic API key in the environment before running the tool:
-  - Linux/macOS: `export ANTHROPIC_API_KEY=sk-...`
-  - Windows (PowerShell): `setx ANTHROPIC_API_KEY "sk-..."`
-- Optionally copy `env.example` to `.env` or export additional overrides like `MCP_AUDIT_FILE` or `ANTHROPIC_TIMEOUT_MS`.
-- Make the CLI executable if you prefer: `chmod +x index.js`
+### Cursor MCP configuration
+- Project‑level `.cursor/mcp.json` example:
 
-Cursor MCP configuration
-- The repo includes `.cursor/mcp.json` configured to whitelist the project path. Verify it points to your repository root before registering with Cursor.
+```json
+{
+  "mcpServers": {
+    "spec-generator": {
+      "command": "node",
+      "args": ["/home/huxley/Projects/ProjectSetup/src/mcp.mjs"],
+      "env": {
+        "LLM_PROVIDER": "openai",
+        "OPENAI_MODEL": "gpt-5-2025-08-07",
+        "PROJECT_ROOT": "/absolute/path/to/your/project"
+      }
+    }
+  }
+}
+```
 
-Security
-- Never point the Filesystem MCP server at `~` or your home directory. Whitelist only the necessary project paths.
-
-
+### Security
+- Never point writes at `~` or your entire home directory. Keep `PROJECT_ROOT` scoped to the current project.

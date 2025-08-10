@@ -20,7 +20,7 @@ docs/
 
 ---
 
-## Step-by-Step Execution
+## Step-by-Step Execution (Multi-step orchestration)
 
 ### 1. 🔍 Analyze `<USER_QUERY>`
 
@@ -33,7 +33,7 @@ Extract the following:
 
 ---
 
-### 2. 📂 Folder Tree Output
+### 2. 📂 Folder Tree Output (Step 1: structure only)
 
 Before any file content, **output a Markdown folder/file tree like this**:
 
@@ -53,7 +53,7 @@ docs/
 
 ---
 
-### 3. 📝 File Content Output
+### 3. 📝 File Content Output (Step 2: contents)
 
 For **each file**, do the following:
 
@@ -64,8 +64,68 @@ For **each file**, do the following:
 - Then include a **fenced code block** with:
   - `markdown` or `gherkin` as language
   - Label it with **"Example content:"** above the block
+  - Ensure each file is substantive: ~200+ words (or code equivalent). Include sections for assumptions, constraints, and pitfalls where relevant.
 
 ---
+
+### JSON Schemas (for strict tool mode)
+
+Use these schemas to constrain your JSON outputs. When asked for JSON, return ONLY a single JSON object conforming to the schema. No extra prose, no Markdown fences.
+
+#### Structure output schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["folders", "files"],
+  "properties": {
+    "folders": { "type": "array", "items": { "type": "string" } },
+    "files":   { "type": "object", "additionalProperties": { "type": "string", "maxLength": 0 } }
+  },
+  "additionalProperties": false
+}
+```
+
+Valid minimal example:
+
+```json
+{"folders":["spec","docs"],"files":{"spec/overview.md":""}}
+```
+
+Rules:
+- All values in `files` MUST be empty strings `""` (no content at this step)
+- Relative paths only; no `..` and no absolute paths
+- Valid JSON only; no trailing commas, comments, or Markdown
+
+#### Content batch output schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["files"],
+  "properties": {
+    "files": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}
+```
+
+Valid minimal example (with escaping):
+
+```json
+{"files":{"spec/overview.md":"Line 1\\nLine \"2\""}}
+```
+
+Rules:
+- JSON only; no Markdown fences or prose
+- Every newline must be `\\n`; every double-quote must be escaped as `\\\"`
+- Only include the exact file paths requested; do not add extra keys
 
 ### 4. File Templates
 
@@ -123,9 +183,10 @@ Each file includes:
 # Task <index>: <Task Title>
 
 ## Description
-Explain the goal of this task and why it matters.
+Explain the goal of this task and why it matters. Include assumptions, constraints, and pitfalls.
 
 ## Implementation Example
+Provide concrete, runnable examples (commands or code). Use realistic placeholders.
 ~~~bash
 # Commands or code
 ~~~
@@ -159,6 +220,22 @@ Group by category, show minimum versions:
 - File content must be realistic and useful
 - Assume an empty repo—all files must be created from scratch
 - Omit anything unrelated to the user query
+
+### Optional JSON Output Mode (for validation)
+
+When instructed by the client, return a single JSON object only (no extra text) with fields:
+
+```
+{
+  "folders": ["specs", "docs"],
+  "files": {
+    "specs/overview.md": "...",
+    "docs/requirements.md": "..."
+  }
+}
+```
+
+This mode enables schema validation prior to file creation.
 
 ---
 
