@@ -28,6 +28,23 @@ Minimal notes for running and developing the MCP spec‑generator tool.
   - Optional: `ALLOW_WRITE=1` to enable automatic writes
 - You can force the server to read a specific env file with `ENV_FILE=/abs/path/.env` in `.cursor/mcp.json`.
 
+### Using OpenAI (default)
+- Default provider is OpenAI; default model is `gpt-5-2025-08-07`.
+- Required env: `OPENAI_API_KEY`. Optional overrides:
+  - `OPENAI_MODEL` (e.g., `gpt-5-2025-08-07`)
+  - `OPENAI_MAX_TOKENS` (default 20000)
+  - `OPENAI_TEMPERATURE` (omit unless needed; some GPT‑5 endpoints reject `temperature`)
+- Example `.env` for OpenAI:
+  ```bash
+  LLM_PROVIDER=openai
+  OPENAI_API_KEY=sk-...
+  OPENAI_MODEL=gpt-5-2025-08-07
+  OPENAI_MAX_TOKENS=20000
+  # Leave OPENAI_TEMPERATURE unset unless you must set it
+  ALLOW_WRITE=1
+  PROJECT_ROOT=/absolute/path/to/your/project
+  ```
+
 ### Cursor MCP configuration
 - Project‑level `.cursor/mcp.json` example:
 
@@ -46,6 +63,11 @@ Minimal notes for running and developing the MCP spec‑generator tool.
   }
 }
 ```
+
+### Troubleshooting
+- “OPENAI_API_KEY environment variable is required”: ensure the key is in `.env` and that the MCP server sees it. Use `ENV_FILE` in `.cursor/mcp.json` to point to your `.env` explicitly.
+- “Unsupported parameter: 'temperature'”: unset `OPENAI_TEMPERATURE` (the GPT‑5 model may not accept it).
+- Tool returns content but no files: enable writes (`ALLOW_WRITE=1` or pass `allowWrite: true`) and set `PROJECT_ROOT` to your current project.
 
 ### Security
 - Never point writes at `~` or your entire home directory. Keep `PROJECT_ROOT` scoped to the current project.
