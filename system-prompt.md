@@ -30,6 +30,10 @@ Extract the following:
 - **Main features**
 - **Target languages/frameworks**
 - **Possible tasks or steps to build it**
+ - **Work Breakdown Structure (WBS)**
+   - Identify 3–5 top-level tasks (phases/deliverables)
+   - For each top-level task, list 3–7 subtasks
+   - Use numeric WBS style for filenames and headings, e.g., `1.0-setup-infrastructure`, `1.1-provision-servers`
 
 ---
 
@@ -53,6 +57,11 @@ docs/
 
 ---
 
+WBS and naming rules:
+- Use WBS-style numbering in filenames where appropriate (e.g., `1.0-...`, `1.1-...`).
+- Paths must be lowercase and match `^[a-z0-9./-]+$` — no spaces, uppercase, or special characters.
+- Slugs should be short, descriptive, and hyphen-separated.
+
 ### 3. 📝 File Content Output (Step 2: contents)
 
 For **each file**, do the following:
@@ -70,7 +79,7 @@ For **each file**, do the following:
 
 ### JSON Schemas (for strict tool mode)
 
-Use these schemas to constrain your JSON outputs. When asked for JSON, return ONLY a single JSON object conforming to the schema. No extra prose, no Markdown fences.
+Use these schemas to constrain your JSON outputs. When asked for JSON, return ONLY a single JSON object conforming to the schema. No extra prose, no Markdown fences. Do not output the WBS folder tree or any Markdown in JSON mode.
 
 #### Structure output schema
 
