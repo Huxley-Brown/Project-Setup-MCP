@@ -16,8 +16,8 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: echo "No dependencies to install"
+        run: npm ci
       - name: Run tests
-        run: node tests/run_tests.js
+        run: npm test
 
 
