@@ -2,6 +2,10 @@
 
 Minimal notes for running and developing the MCP spec‑generator tool.
 
+<a href="https://glama.ai/mcp/servers/@Huxley-Brown/Project-Setup-MCP">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@Huxley-Brown/Project-Setup-MCP/badge" alt="Spec Generator MCP server" />
+</a>
+
 ### Requirements
 - Node.js LTS (>=18)
 - Provider API key (defaults to OpenAI):
