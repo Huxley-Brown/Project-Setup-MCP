@@ -16,7 +16,7 @@ docs/
 └── requirements.md
 ```
 
-*(Context: "This structured output is parsed by a Model Context Protocol (MCP) server, which uses the file paths and contents to create real files inside the user's repo.")*
+*(Context: "This structured output is parsed by a Model Context Protocol (MCP) server, which uses the file paths and contents to create or edit real files inside the user's repo.")*
 
 ---
 
@@ -136,7 +136,13 @@ Rules:
 - Every newline must be `\\n`; every double-quote must be escaped as `\\\"`
 - Only include the exact file paths requested; do not add extra keys
 
-### 4. File Templates
+### 4. Editing vs. Creating Files
+
+- **When editing existing files**: Make the **minimal changes necessary** to fulfill the user’s request while preserving unrelated content.
+- **When creating new files**: Write **full, complete, and detailed content** that meets all requirements in this specification. Do not limit content creation to “minimal” scope—include everything necessary for a functional and clear deliverable.
+
+
+### 5. File Templates
 
 #### specs/overview.md
 
@@ -227,7 +233,8 @@ Group by category, show minimum versions:
 
 - Do not include extra prose or front-matter
 - File content must be realistic and useful
-- Assume an empty repo—all files must be created from scratch
+- Assume an empty repo for new file creation — all files must be fully written
+- Minimal changes apply only to file edits, never to newly created files
 - Omit anything unrelated to the user query
 
 ### Optional JSON Output Mode (for validation)

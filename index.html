@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>retro-arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="game-canvas" aria-label="Retro Arcade Game"></canvas>
+
+  <div id="menu-overlay" class="overlay">
+    <div class="panel">
+      <h1 class="title">Retro Arcade</h1>
+      <p class="subtitle">Survive as long as you can.</p>
+      <button id="play-btn" class="btn neon" aria-label="Play">Play</button>
+      <p class="help">Move: WASD / Arrows • Auto-attacks every 0.5s</p>
+    </div>
+  </div>
+
+  <div id="gameover-overlay" class="overlay hidden" aria-hidden="true">
+    <div class="panel">
+      <h2 class="title">Game Over</h2>
+      <p class="subtitle">Score: <span id="final-score">0</span></p>
+      <button id="restart-btn" class="btn neon" aria-label="Restart">Restart</button>
+    </div>
+  </div>
+
+  <div id="hud" class="hud" aria-live="polite">
+    <span id="hud-score">Score: 0</span>
+    <span id="hud-health">HP: 100</span>
+  </div>
+
+  <script defer src="game.js"></script>
+  <script>
+    (function() {
+      function ready(fn){ if(document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+      ready(function(){
+        const play = document.getElementById('play-btn');
+        const menu = document.getElementById('menu-overlay');
+        const restart = document.getElementById('restart-btn');
+        const gameOverOverlay = document.getElementById('gameover-overlay');
+
+        function doStart(){
+          menu.classList.add('hidden');
+          if (window.startGame) window.startGame();
+          else window.__autoStart = true;
+        }
+        function doRestart(){
+          gameOverOverlay.classList.add('hidden');
+          if (window.restartGame) window.restartGame();
+          else {
+            window.__autoRestart = true;
+            if (window.startGame) window.startGame();
+            else window.__autoStart = true;
+          }
+        }
+
+        play.addEventListener('click', doStart);
+        restart.addEventListener('click', doRestart);
+
+        // Helpers for game.js to interact with the UI
+        window.showGameOver = function(score){
+          document.getElementById('final-score').textContent = (typeof score === 'number') ? score : 0;
+          gameOverOverlay.classList.remove('hidden');
+        };
+        window.updateHUD = function(score, hp){
+          if (typeof score === 'number') document.getElementById('hud-score').textContent = 'Score: ' + score;
+          if (typeof hp === 'number') document.getElementById('hud-health').textContent = 'HP: ' + Math.max(0, Math.floor(hp));
+        };
+      });
+    })();
+  </script>
+</body>
+</html>
