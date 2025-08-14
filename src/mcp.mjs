@@ -17,6 +17,27 @@ const toolDef = {
   }
 };
 
+// Early parse of CLI args to support --projectRoot
+const argv = Array.isArray(process.argv) ? process.argv.slice(2) : [];
+for (let i = 0; i < argv.length; i++) {
+  const arg = argv[i];
+  if (arg === '--projectRoot' && i + 1 < argv.length) {
+    const value = argv[i + 1];
+    if (value && !process.env.PROJECT_ROOT) {
+      process.env.PROJECT_ROOT = value;
+    }
+    i++;
+    continue;
+  }
+  if (arg.startsWith('--projectRoot=')) {
+    const value = arg.split('=')[1];
+    if (value && !process.env.PROJECT_ROOT) {
+      process.env.PROJECT_ROOT = value;
+    }
+    continue;
+  }
+}
+
 const server = new Server(
   { name: 'spec-generator', version: '0.0.1' },
   {
